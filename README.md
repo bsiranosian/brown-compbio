@@ -5,7 +5,7 @@ Tools developed in computational biology courses at Brown.
 
 Each class has a folder containing multiple items
 
-# CSCI1820 - Algorithmic Foundations of Computational Biology 
+## CSCI1820 - Algorithmic Foundations of Computational Biology 
 ## Sorin Istrail, Spring 2014
 
 ### Homework 2
