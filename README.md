@@ -21,4 +21,10 @@ Midterm - Assembling contigs from an assembler into scaffolds
 #### Homework 7 
 Viterbi algorithm for predicting CpG islands 
 #### Homework 8  
-BLAST implemented in python - unfinished!
+BLAST implemented in python
+
+##PHP2620 - Statistical Methods in Bioinformatics 1
+Jean Wu, Spring 2014
+
+#### Homework 3
+Differential expression analysis in classic estrogen microarray data and IFN-gamma / IL-1 beta treated thyroid epithelial cells. 
