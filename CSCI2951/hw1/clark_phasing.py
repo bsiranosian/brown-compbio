@@ -1,29 +1,40 @@
 # Haplotype phasing with Clark's method 
 # Ben Siranosian | CSCI2951
-import argparse
 import os
 import itertools
 import random
+import sys
 
-# argparse stuff here
-# need to get input file of genotypes, output file for solution, posssibly some parameters about how to run
-os.chdir('C://Users/Admin/Documents/GitHub/brown-compbio/CSCI2951/hw1/')
-inFile='AACB2014-dataset1-genotypes.txt'
+def main():
+	# get arguments 
+	if len(sys.argv) != 2:
+		sys.exit('USAGE: python clark_phasing.py genotype_file \n Takes as input a list of genotypes (defined by 0,1,2), one per line. \n Computes the clark phasing of the input with rules defined in the accompanying document. \n By default runs 1000 iterations of the algorithm and picks the best solution \n (fewest orphans and fewest explaining haplotypes).')
+	inFile=sys.argv[1]
+	# need to get input file of genotypes, output file for solution, posssibly some parameters about how to run
+	# os.chdir('C://Users/Admin/Documents/GitHub/brown-compbio/CSCI2951/hw1/')
+	# inFile='AACB2014-dataset1-genotypes.txt'
 
-with open(inFile,'r') as inf:
-	lines = [map(int, list(l.strip())) for l in inf.readlines()]
+	with open(inFile,'r') as inf:
+		lines = [map(int, list(l.strip())) for l in inf.readlines()]
 
-# our vector of genotypes by removing duplicates
-# note that this is a choice and could not be done in the furture
-# there's something useful about keeping the numbers of things
-# could do some sort of ML approach where previously seen is used 
-# to resolve ambiguities.
-lines.sort()
-gen = list(l for l,_ in itertools.groupby(lines))
+	# our vector of genotypes by removing duplicates
+	# note that this is a choice and could not be done in the furture
+	# there's something useful about keeping the numbers of things
+	# could do some sort of ML approach where previously seen is used 
+	# to resolve ambiguities.
+	lines.sort()
+	gen = list(l for l,_ in itertools.groupby(lines))
 
-# ensure we get a new result each time 
-# disable for testing
-#random.shuffle(g)
+	answer = returnBest(gen, 1000)
+	print "Number of orphans remaining: " + str(len(answer[1]))
+	if len(answer[1]) > 0:
+		print "Orphan genotypes are"
+		for a in answer[1]:
+			print '\t' + str(a)
+	print "Number of haplotypes explaining resolved genotypes: " + str(len(answer[0]))
+	print "Haplotypes explaining genotypes"
+	for a in answer[0]:
+		print '\t' + str(a)
 
 ## HELPER FUNCTIONS
 # canExplain(genotype, haplotype): returns True if a haplotype can 
@@ -62,21 +73,25 @@ def resolveHomozygotes(g, r=None):
 	# make a resolved list if we need to 
 	if r==None:
 		r=[]
-	for genotype in g:
+	g2 = g[:]
+	r2 = r[:]
+	for genotype in g2:
 		# check for homozygotes
 		if 2 not in genotype:
-			g.remove(genotype)
+			g2.remove(genotype)
 			# check if genotype is in the resolved list already
 			# as said before, this duplicates method can be switched around
-			if genotype not in r:
-				r.append(genotype)
-	return [g,r]
+			if genotype not in r2:
+				r2.append(genotype)
+	return [g2,r2]
 
 # resolveHeterozygotes(genotypes, resolved): finds heterozygotes with 
 # a single ambiguous site, resolves them and adds to the resolved list
 # returns [updated genotypes, resolved list]
 def resolveHeterozygotes(g, r):
-	for genotype in g:
+	g2 = g[:]
+	r2 = r[:]
+	for genotype in g2:
 		# look for a single ambiguuous site
 		if genotype.count(2) == 1:
 			o1=[]
@@ -89,57 +104,97 @@ def resolveHeterozygotes(g, r):
 					o1.append(i)
 					o2.append(i)
 			# append the new unique haplotypes
-			if o1 not in r: r.append(o1)
-			if o2 not in r: r.append(o2)
+			if o1 not in r2: r2.append(o1)
+			if o2 not in r2: r2.append(o2)
 			# remove from genotype list
-			g.remove(genotype)
-	return[g,r]
+			g2.remove(genotype)
+	return[g2,r2]
 
 # inferenceRule(genotypes, resolved): applys the inference Rule once
 # to the list of genotypes. If a genotype can be resolved by the resolved list, 
 # append the new haplotype to resolved and remove from genotypes
 def inferenceRule(g, r):
+	g2 = g[:]
+	r2 = r[:]
 	counter=0
-	for genotype in g:
+
+	for genotype in g2:
+		#print genotype
 		notExplained=True
-		for possible in r:
+		for possible in r2:
 			if canExplain(genotype,possible):
-				g.remove(genotype)
-				r.append(resolveGenotype(genotype,possible))
+				g2.remove(genotype)
+				resolved =resolveGenotype(genotype,possible)
+				if resolved not in r2:
+					r2.append(resolved)
 				counter +=1
 				break
 		else:
 			continue
 		break
-	print 'One iteration resolved ' +str(counter) +' genotypes'
-	print str(len(g)) + ' genotypes remain'
-	return [g,r]
+	#print 'One iteration resolved ' +str(counter) +' genotypes'
+	#print str(len(g2)) + ' genotypes remain'
+	return [g2,r2]
 
-#schematic for doing inference
-res1 = resolveHomozygotes(gen)
-g1=res1[0]
-r1=res1[1]
-for l in g1: print l
-print
-for l in r1: print l
-res2=resolveHeterozygotes(g1, r1)
-g2=res2[0]
-r2=res2[1]
-for l in g2: print l
-print
-for l in r2: print l
-res3=inferenceRule(g2,r2)
-g3=res3[0]
-r3=res3[1]
-for l in g3: print l
-print
-for l in r3: print l
+# doPhasing(g): runs the whole phasing algorithm. Takes as input a set of genotypes. 
+# return [list of explanations, orphan genotypes]
+def doPhasing(g):
+	g2 = g[:]
+	# resolve homozygotes
+	res1 = resolveHomozygotes(g2)
+	g2=res1[0]
+	r2=res1[1]
+	# resolve heterozygotes
+	res2=resolveHeterozygotes(g2, r2)
+	g2=res2[0]
+	r2=res2[1]
 
-for i in range(20):
-	res4=inferenceRule(g3,r3)
-	g3=res4[0]
-	r3=res4[1]
-	for l in g3: print l
-	print
-	for l in r3: print l
-	
+	#apply the inference rule until we're stuck with orphans
+	oldGLen = None
+	while len(g2) != oldGLen:
+		oldGLen = len(g2)
+		res3=inferenceRule(g2,r2)
+		g2=res3[0]
+		r2=res3[1]
+
+	# print "haplotypes explaining original genotypes: "
+	# for l in r2:
+	# 	print l
+
+	# if len(g2) > 0:
+	# 	print "orphans remaining: " + str(len(g))
+	# 	for l in g2:
+	# 		print l
+	# return list of haplotypes
+	return [r2, g2]
+
+#returnBest(g, n): repeats the Clark Phasing algorithm n number of times on the input genotypes,
+# randomizng the list before each iteration. 
+def returnBest(g, n):
+	g2 = g[:]
+	# run n times on randomized data
+	resList = []
+	for i in range(n):
+		random.shuffle(g2)
+		resList.append(doPhasing(g2))
+
+	# find best solution 
+	# min number of orphans
+	minO = min(map(len,[res[1] for res in resList]))
+	# print "minO: " + str(minO)
+	# subset on this 
+	resListSubset1 = [res for res in resList if len(res[1])==minO]
+
+	#min number of explanations
+	minE = min(map(len,[res[0] for res in resListSubset1])) 
+	# print "minE: " + str(minE)
+
+	# subset on this 
+	resListSubset2 = [res for res in resList if len(res[0])==minE]
+
+	#randomize and return
+	random.shuffle(resListSubset2)
+	return resListSubset2[0]
+
+if __name__ == '__main__':
+	main()
