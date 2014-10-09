@@ -3,6 +3,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import sys
 import random
+import time
 
 # algorithm for coalescent simulations 
 # • Set k = n, T=0, V = {V1, V2, …, Vn} (vertices or leaves) and A1 = A2
@@ -20,7 +21,7 @@ if len(sys.argv) != 2:
 	sys.exit('USAGE: coalescence.py k \n Where k is the starting population size')
 
 # get input and set initial parameters 
-k=sys.argv[1]
+k=int(sys.argv[1])
 assert k >1
 n=k
 T=0
@@ -35,6 +36,9 @@ A = {i:0 for i in V}
 
 # set initial positions for drawing
 pos = {a: (a-1,0) for a in V}
+
+#interactive plotting
+plt.ion()
 
 # while we have more than one node left:
 while len(V) > 1:
@@ -68,4 +72,5 @@ while len(V) > 1:
 	
 	nx.draw(G,pos)
 	nx.draw_networkx_labels(G,pos,labels={g:g for g in G.nodes()})
-	plt.show()
+	plt.draw()
+	time.sleep(0.25)	
