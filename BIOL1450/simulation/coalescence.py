@@ -77,15 +77,16 @@ while len(V) > 1:
 
 
 # Notes from meeting
-What else can we add to the simulation?
-Not always constant population size
-	simulate selection 
-	growth rate
+# What else can we add to the simulation?
+# Not always constant population size
+# 	simulate selection 
+# 	growth rate
 
-Put mutations on the tree afterwards so we can see how they appear 
-Migration
+# Put mutations on the tree afterwards so we can see how they appear 
+# Migration
 
-With recombination:
-	Layout? Graph based?
+# With recombination:
+# 	Layout? Graph based?
 
-run multliple simulations, disibuation of time across them 
+# run multliple simulations, disibuation of time across them 
+
