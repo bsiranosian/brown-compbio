@@ -17,16 +17,15 @@ import time
 # • Stop when k = 1.
 
 # check usage - eventually use argparse
-if len(sys.argv) != 2:
-	sys.exit('USAGE: coalescence.py k \n Where k is the starting population size')
+# if __name__ == '__main__':
+# 	if len(sys.argv) != 2:
+# 		sys.exit('USAGE: coalescence.py k \n Where k is the starting population size')
 
 # get input and set initial parameters 
-k=int(sys.argv[1])
+#k=int(sys.argv[1])
 assert k >1
 n=k
 T=0
-# list of vertices
-V = range(1,k+1)
 # graph to represent the tree for later
 G=nx.Graph()
 # add nodes to represent initial population
@@ -40,40 +39,51 @@ pos = {a: (a-1,0) for a in V}
 #interactive plotting
 plt.ion()
 
+
+k = 10
+# list of vertices
+currentNodes = range(1,k+1)
+remaining = k
+eventTimes = []
+coalescePairs = []
 # while we have more than one node left:
-while len(V) > 1:
+while remaining > 1:
 	# draw t from exponential
-	t = np.random.exponential(scale=float(2)/(k*(k-1)), size=1)[0]
-	print 't: ' + str(t)
+	eventTimes.append(np.random.exponential(scale=float(2)/(remaining*(remaining-1)), size=1)[0])
+	print 'time for this event: ' + str(eventTimes[-1])
 
 	# draw a and b uniformly 
-	sample = random.sample(V,2)
+	sample = random.sample(currentNodes,2)
 	a=sample[0]
 	b=sample[1]
 	print 'nodes to coalesce: ' + str(a) + ' , ' + str(b)
+	coalescePairs.append([a,b])
 
-	k=k-1
-	T=T+t
-	print 'Total time at coalescence: ' + str(T)
+	# subtract one from remaining nodes
+	remaining += -1
 
 	# add new node from coalescent event
-	V.append(2*n-k)
-	A[2*n-k] = T
+	currentNodes.append(k+(k-remaining))
 
 	#remove old nodes
-	V.remove(a)
-	V.remove(b)
+	currentNodes.remove(a)
+	currentNodes.remove(b)
+	print currentNodes
 
-	#update the graph with new vertix and time
-	G.add_edge(a, 2*n-k, length=T - A[a])
-	G.add_edge(b, 2*n-k, length=T - A[b])
-	# update position of new node
-	pos[2*n-k] = (float(pos[a][0]+pos[b][0])/2,T)
-	
-	nx.draw(G,pos)
-	nx.draw_networkx_labels(G,pos,labels={g:g for g in G.nodes()})
-	plt.draw()
-	time.sleep(0.25)	
+# at the end, calculate cumulative times to coalescence 
+totalTimes = np.cumsum(eventTimes)
+
+
+#update the graph with new vertix and time
+G.add_edge(a, 2*n-k, length=T - A[a])
+G.add_edge(b, 2*n-k, length=T - A[b])
+# update position of new node
+pos[2*n-k] = (float(pos[a][0]+pos[b][0])/2,T)
+
+nx.draw(G,pos)
+nx.draw_networkx_labels(G,pos,labels={g:g for g in G.nodes()})
+plt.draw()
+time.sleep(0.25)	
 
 
 # Notes from meeting
@@ -90,3 +100,6 @@ while len(V) > 1:
 
 # run multliple simulations, disibuation of time across them 
 
+# things we can plot after: summary statistics
+# 1) distribution of times to coalescence as a function of time
+#    how well does this approximate an exponential distribution?
