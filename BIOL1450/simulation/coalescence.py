@@ -92,7 +92,7 @@ def main(k, growth= None, factor = None):
 	# if we want to simulate population change, calculate that here. 
 	if growth != None:
 		populations = popGrowth(growth, factor, k)
-
+		populations = populations[::-1]
 	# do the randomized drawing
 	# while we have more than one node left:
 	while remaining > 1:

@@ -6,7 +6,7 @@ to the time of coalescence for that node.
 Two or three plots are produced. The first is always a graph of the coalescence 
 tree. The second is the time to coalescence for each event, looking back in time.
 The third only shows up if you simulate population growth. It is the relative population
-size looking FORWARD in time. 
+size looking backward in time. 
 
 USAGE: python coalescence.py k [growth_type] [growth_rate]
 MANDATORY ARGUMENTS: specify a population of alleles of size k
