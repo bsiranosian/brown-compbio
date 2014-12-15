@@ -66,6 +66,7 @@ def getSubgraph(graph, node):
 # popGrowth(growth, factor, k): returns a list of relative population sizes, given
 # the growht model and growth factor
 def popGrowth(growth, factor, k):
+	factor=1.0/factor
 	# linear growth: increase by percent a of initial every time unit
 	if growth == 'linear':
 		populations = [1.0]
@@ -90,7 +91,7 @@ def main(k, growth= None, factor = None):
 	coalescePairs = []
 	draw = 0
 	# if we want to simulate population change, calculate that here. 
-	if growth != None:
+	if growth != None:	
 		populations = popGrowth(growth, factor, k)
 		populations = populations[::-1]
 	# do the randomized drawing

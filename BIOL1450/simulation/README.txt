@@ -13,9 +13,9 @@ MANDATORY ARGUMENTS: specify a population of alleles of size k
 OPTIONAL ARGUMENTS: growth_type can be one of 'exponential' or 'linear'
 					if growth type is specified, growth_rate must also be specified
 					growth_rate serves to regulate how the population changes looking
-					forward in time. Specify exponental and a rate of 2 to double every
-					generation, etc. With linear growth, the value for rate will increase 
+					backward in time. Specify exponental and a rate of 2 to double every
+					generation looking back, etc. With linear growth, the value for rate will increase 
 					the population by that fraction of the original value in every genereation
-					So a rate of 0.05 will increase population by 5% of original every time. s
+					So a rate of 0.05 will increase population by 5% of original every time.
 DEPENDS: numpy, matplotlib, networkx.
 		 These packages can be downloaded from the internet.
