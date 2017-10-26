@@ -23,7 +23,7 @@ Viterbi algorithm for predicting CpG islands
 #### Homework 8  
 BLAST implemented in python
 
-##PHP2620 - Statistical Methods in Bioinformatics 1
+## PHP2620 - Statistical Methods in Bioinformatics 1
 Jean Wu, Spring 2014
 
 #### Homework 3
